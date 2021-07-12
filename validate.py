@@ -18,7 +18,7 @@ def validate(user_input):
 
     # check if input is a negative value
     if input_to_string[0] == '-':
-        input_to_string = input_to_string[1:2]
+        input_to_string = input_to_string[1:3]
     operator = input_to_string[:2]
 
     # Exit Code
