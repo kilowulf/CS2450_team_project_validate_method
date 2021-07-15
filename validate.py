@@ -21,12 +21,14 @@ def validate(user_input):
         input_to_string = input_to_string[1:3]
     operator = input_to_string[:2]
 
-    # Exit Code
-    exit_code = -99999
-
     # check for entry
     if user_input is None:
         print(f'No input detected')
+
+    # check to make sure input is either length 5 if signed or 4 if unsigned
+    if len(input_to_string) >= 5:
+        if input_to_string[0] is not '-':
+            print(f'input must be 4 digits only')
 
     # check for none integer input
     if not isinstance(user_input, int):
@@ -48,10 +50,17 @@ def validate_instruct_counter(curr_counter_value):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+
+    # test input for negative value
     user_input_value = -1011
     user_input_string = str(user_input_value)
     if user_input_string[0] == '-':
         user_input_string = user_input_string[1:3]
+
+    # test input for valid opcode
+    opcodes2 = [10, 11, 20, 21, 30, 31, 32, 33, 40, 41, 42, 43]
+    if int(user_input_string) not in opcodes2:
+        print(f'{user_input_string} is in opcodes')
 
     print(len(user_input_string))
     print(user_input_string[:2])
