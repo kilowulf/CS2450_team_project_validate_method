@@ -27,7 +27,7 @@ def validate(user_input):
 
     # check to make sure input is either length 5 if signed or 4 if unsigned
     if len(input_to_string) >= 5:
-        if input_to_string[0] is not '-':
+        if input_to_string[0] != '-':
             print(f'input must be 4 digits only')
 
     # check for none integer input
