@@ -168,10 +168,10 @@ if __name__ == '__main__':
     memory[2] = 1
     memory[99] = 15
     memory[97] = 34
-    opcodeex = 1210
+    opcode_ex = 1210
 
     "should return last two digits of opcode as a memory location"
-    print(mem_add_locator(opcodeex))
+    print(mem_add_locator(opcode_ex))
 
     "should read a value into memory location"
     read(1098, memory, 23)
