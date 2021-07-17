@@ -25,7 +25,7 @@ import math
                                                             is zero
                 HALT       43     None                      Pause program
 
-                ** Arguments are assumed to be full 4 digit opcodes when passed to parameters as ie. src_add
+                ** Arguments are assumed to be full 4 digit opcodes when passed as parameters ie. src_add
                    dest_add, opcode.
                    
         Instruction register(IR):
