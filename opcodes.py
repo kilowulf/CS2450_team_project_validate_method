@@ -49,7 +49,7 @@ accumulator = 0
 
 
 def mem_add_locator(opcode):
-    "extracts mem loc. from opcode and returns 2 digit integer"
+    """extracts mem loc. from opcode and returns 2 digit integer"""
     op_str = str(opcode)
     if opcode is not None:
         mem_loc = op_str[2:]
