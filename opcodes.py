@@ -62,20 +62,20 @@ def mem_add_locator(opcode):
 
 
 def read(dest_add, memory_struct, word):
-    "READ operation"
+    """READ operation"""
     mem_loc = mem_add_locator(dest_add)
     memory_struct[mem_loc] = word
     return print(f'READ from {mem_loc}: {memory_struct[mem_loc]}')
 
 
 def write(src_add, memory_struct):
-    "WRITE operation"
+    """WRITE operation"""
     mem_loc = mem_add_locator(src_add)
     return print(f'WRITE from {mem_loc}: {memory_struct[mem_loc]}')
 
 
 def load(src_add, memory_struct):
-    "LOAD operation"
+    """LOAD operation"""
     mem_loc = mem_add_locator(src_add)
     value_to_load = memory_struct[mem_loc]
     global accumulator
@@ -84,7 +84,7 @@ def load(src_add, memory_struct):
 
 
 def store(dest_add, mem_struct, accum):
-    "STORE operation"
+    """STORE operation"""
     value_to_store = accum
     mem_loc = mem_add_locator(dest_add)
     mem_struct[mem_loc] = value_to_store
@@ -92,7 +92,7 @@ def store(dest_add, mem_struct, accum):
 
 
 def add(src_add, mem_struct):
-    "ADD operation"
+    """ADD operation"""
     mem_loc = mem_add_locator(src_add)
     value_to_add = mem_struct[mem_loc]
     global accumulator
@@ -101,7 +101,7 @@ def add(src_add, mem_struct):
 
 
 def subtract(src_add, mem_struct):
-    "SUBTRACT operation"
+    """SUBTRACT operation"""
     mem_loc = mem_add_locator(src_add)
     value_to_sub = mem_struct[mem_loc]
     global accumulator
@@ -125,7 +125,7 @@ def divide(src_add, mem_struct):
 
 
 def multiply(src_add, mem_struct):
-    "MULTIPLY operation"
+    """MULTIPLY operation"""
     mem_loc = mem_add_locator(src_add)
     value_to_multi = mem_struct[mem_loc]
     global accumulator
