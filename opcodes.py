@@ -203,7 +203,7 @@ if __name__ == '__main__':
     "Branch to mem loc. if value in accumulator is Negative value"
     read(1045, memory, -12)
     load(2045, memory)
-    branch_neg(4167, memory)
+    branch_neg(4267, memory)
 
 
 
