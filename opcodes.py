@@ -153,6 +153,17 @@ def branch_neg(br_add, mem_struct):
         return print(f'BRANCHNEG to mem loc. {mem_loc} with value: {branch_to_add}')
 
 
+def branch_zero(br_add, mem_struct):
+    """BRANCHZERO operation:
+            - if value in accumulator is zero: Branch to mem loc.
+    """
+    mem_loc = mem_add_locator(br_add)
+    branch_to_add = mem_struct[mem_loc]
+    global accumulator
+    if accumulator == 0:
+        return print(f'BRANCHZERO to mem loc. {mem_loc} with value: {branch_to_add}')
+
+
 def halt():
     """HALT operation:
         - suspend / pause operations until a interrupt or reset is received
@@ -204,7 +215,13 @@ if __name__ == '__main__':
     "Branch to mem loc. if value in accumulator is Negative value"
     read(1045, memory, -12)
     load(2045, memory)
-    branch_neg(4267, memory)
+    branch_neg(4167, memory)
+
+    "Branch to mem loc. if value in accumulator is zero"
+    read(1055, memory, 0)
+    load(2055, memory)
+    branch_zero(4272, memory)
+
 
 
 
