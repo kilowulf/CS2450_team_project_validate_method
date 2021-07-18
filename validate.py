@@ -7,6 +7,8 @@
                 - test for signed integer to extract operator code properly
 
 """
+global validate_pass
+validate_pass = True
 
 
 def validate(user_input):
@@ -17,11 +19,13 @@ def validate(user_input):
 
     # check for entry
     if user_input is None:
-        return print(f'No input detected')
+        validate_pass = False
+        return print(f'No input detected'), validate_pass
 
     # check for none integer input
     if not isinstance(user_input, int):
-        return print(f'{user_input} please enter integers only')
+        validate_pass = False
+        return print(f'{user_input} please enter integers only'), validate_pass
 
     # convert input to string
     input_to_string = str(user_input)
@@ -83,6 +87,6 @@ if __name__ == '__main__':
     validate(-11000)
     validate(11777)
     validate(1211)
-    validate('hello')
+    valid = validate('hello')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

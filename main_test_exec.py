@@ -15,6 +15,7 @@ class virtualMachine:
         self.operand = 0
         self.exitCode = -99999
         self.opCode = 0
+        self.pass_validate = True
 
         self.InstructCounter = 0
         self.InstructRegister = 0
@@ -56,8 +57,8 @@ class virtualMachine:
         print("""
 
             _   ___   _____ ___ __  __ 
-            | | | \ \ / / __|_ _|  \/  |
-            | |_| |\ V /\__ \| || |\/| |
+           | | | \ \ / / __|_ _|  \/  |
+           | |_| |\ V /\__ \| || |\/| |
             \___/  \_/ |___/___|_|  |_|
                 Welcome to UVSim
         This program interprets and runs programs written in the BasicML language.
@@ -76,36 +77,43 @@ class virtualMachine:
         # Opcodes
         opcodes = [10, 11, 20, 21, 30, 31, 32, 33, 40, 41, 42, 43]
         # exitcode
-        exit_code = str(-99999)
+        exit_code = str(self.exitCode)
 
         # check for entry
         if user_input is None:
+            self.pass_validate = False
             return print(f'No input detected')
 
         # check for none integer input
         if not isinstance(user_input, int):
+            self.pass_validate = False
             return print(f'{user_input} please enter integers only')
 
         # convert input to string
         input_to_string = str(user_input)
 
         if input_to_string == exit_code:
+            self.pass_validate = False
             return print(f'exit code')
 
         # check for input less than 4
         if len(input_to_string) <= 4:
             if len(input_to_string) < 4:
+                self.pass_validate = False
                 return print(f'{input_to_string} has too few digits')
 
             if input_to_string[0] == '-':
+                self.pass_validate = False
                 return print(f'{input_to_string} has too few digits')
 
         # check to make sure input is either length 5 if signed or 4 if unsigned
         if len(input_to_string) >= 5 and input_to_string != exit_code:
             if len(input_to_string) > 5:
+                self.pass_validate = False
                 return print(f'{input_to_string} has too many digits')
 
             if len(input_to_string) == 5 and input_to_string[0] != '-':
+                self.pass_validate = False
                 return print(f'{input_to_string} must be 4 digits only')
 
         # check if input is a negative value
@@ -117,10 +125,12 @@ class virtualMachine:
 
                 # check opcode
                 if int(operator) not in opcodes:
+                    self.pass_validate = False
                     return print(f'{user_input} incorrect operator entered')
 
         input_operator = input_to_string[0:2]
         if int(input_operator) not in opcodes:
+            self.pass_validate = False
             return print(f'{user_input} incorrect operator entered')
 
     # running a while loop getting the first instruction inputs seperating them in their own lists
@@ -157,6 +167,9 @@ def main():
         user_input_string = user_input_string[1:3]
 
     vm.validate(user_input_string)
+    # use pass_validate to check if validation passes
+    if not vm.pass_validate:
+        print('Validation failed')
 
     vm.Dump()
 
