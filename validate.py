@@ -29,11 +29,11 @@ def validate(user_input):
     if input_to_string == exit_code:
         return print(f'exit code')
 
-    if len(input_to_string) <= 3:
-        return print(f'{input_to_string} has too few digits')
-
     # check for input less than 4
-    if len(input_to_string) < 4:
+    if len(input_to_string) <= 4:
+        if len(input_to_string) < 4:
+            return print(f'{input_to_string} has too few digits')
+
         if input_to_string[0] == '-':
             return print(f'{input_to_string} has too few digits')
 
@@ -74,7 +74,15 @@ def validate_instruct_counter(curr_counter_value):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
+    validate(-110)
+    validate(-10)
+    validate(-1)
+    validate(110)
+    validate(10)
     validate(1)
-
+    validate(-11000)
+    validate(11777)
+    validate(1211)
+    validate('hello')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
