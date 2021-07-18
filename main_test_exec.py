@@ -16,6 +16,8 @@ class virtualMachine:
         self.exitCode = -99999
         self.opCode = 0
         self.pass_validate = True
+        self.storedOpCodes = []
+        self.storedMemory = []
 
         self.InstructCounter = 0
         self.InstructRegister = 0
@@ -50,6 +52,9 @@ class virtualMachine:
             counter += 1
             print(f"{index:05d}", end="")  # displaying with leading zeros
             print(" ", end=" ")
+
+        print(f'store memory for data {self.storedMemory}')
+        print(f'stored memory for opcodes {self.storedOpCodes}')
 
     # Calls the prompt to the console. This likely will be called on load.
     # this may return a string?
@@ -141,17 +146,31 @@ class virtualMachine:
             "***\n*** type the word for that location. Enter ***\n*** -99999 to stop entering your program. ***")
         incoming = None
         inc = 0
-        storedOpCodes = []
-        storedMemory = []
+
         while incoming != "-99999":
             if inc < 10:
                 print("0" + str(inc) + " ? ", end="")
             else:
                 print(str(inc) + " ? ", end="")
-            inc += 1
             incoming = input()
-            storedMemory.append(incoming[2:])  # memory list
-            storedOpCodes.append(incoming[:2])  # opcode list
+            self.validate(int(incoming))
+            # if validation fails then break out of loop
+            if not self.pass_validate:
+                break
+            else:
+                inc += 1
+                # slice substring to consider negative values
+                if incoming[0] == '-':
+                    inc_operand = incoming[3:]
+                    inc_operator = incoming[1:3]
+                    # re-introduce negative sign for negative values in memory
+                    self.storedMemory.append('-' + inc_operand)  # memory list
+                    self.storedOpCodes.append(inc_operator)  # opcode list
+                else:
+                    inc_operand = incoming[2:]
+                    inc_operator = incoming[0:2]
+                    self.storedMemory.append(inc_operand)  # memory list
+                    self.storedOpCodes.append(inc_operator)  # opcode list
 
     # main method if we want it not in a seperate class
 
