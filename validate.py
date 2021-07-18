@@ -70,8 +70,8 @@ def validate_instruct_counter(curr_counter_value):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    opcode = -1111
+    validate(opcode)
 
-    validate(-1111)
 
-    # validate(user_input)
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
