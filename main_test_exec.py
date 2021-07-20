@@ -60,8 +60,8 @@ class virtualMachine:
     def Dump(self):
         print("\nREGISTERS:          ")
         print("Accumulator:          " + str(math.floor(self.Accumulator)))
-        print("InstructionCounter:  " + str(self.InstructCounter))
-        print("InstructionRegister:  " + str(self.InstructRegister))
+        print("InstructionCounter:  0" + str(self.InstructCounter))
+        print("InstructionRegister: 0" + str(self.InstructRegister))
         print("OperationCode:        " + str(self.opCode))
         print("Operand:              " + str(self.operand))
         # Below is getting the format of the array displayed
@@ -196,44 +196,51 @@ class virtualMachine:
                 word = input("Enter an integer:")
                 self.memory[int(self.storedMemory[count])] = int(word)
                 self.InstructRegister = self.opCode_reg[-1]
+                self.InstructCounter = int(self.storedMemory[count]) + 1
             if i == "11":  # Write
                 print(f'WRITE from {self.storedMemory[count]}: {self.memory[int(self.storedMemory[count])]}')
             if i == "20":  # load
                 print("Loading from memory to accumulator: ")
                 value_to_load = self.memory[int(self.storedMemory[count])]
                 self.Accumulator = value_to_load
+                self.InstructCounter = int(self.storedMemory[count]) + 1
             if i == "21":  # Store
                 value_to_store = self.Accumulator
                 self.memory[int(self.storedMemory[count])] = value_to_store
+                self.InstructCounter = int(self.storedMemory[count]) + 1
                 print(f'STORE {value_to_store} from accumulator to memory loc.: {self.storedMemory[count]}')
             if i == "30":  # Add
                 value_to_add = self.memory[int(self.storedMemory[count])]
                 self.Accumulator += value_to_add
+                self.InstructCounter = int(self.storedMemory[count]) + 1
                 print(f'ADD {value_to_add} at mem loc. {int(self.storedMemory[count])} to accumulator: {self.Accumulator}')
             if i == "31":  # Subtract
                 # results in a -0000 when accumulator is stored
                 value_to_sub = self.memory[int(self.storedMemory[count])]
                 self.Accumulator -= value_to_sub
+                self.InstructCounter = int(self.storedMemory[count]) + 1
                 print(f'SUBTRACT {value_to_sub} at mem loc. {int(self.storedMemory[count])} from accumulator: {self.Accumulator}')
             if i == "32":  # Divide
                 value_denominator = self.memory[int(self.storedMemory[count])]
                 self.Accumulator = int(math.floor(self.Accumulator / value_denominator))
+                self.InstructCounter = int(self.storedMemory[count]) + 1
                 print(f'DIVIDE {value_denominator} at mem loc. {int(self.storedMemory[count])} from accumulator: {self.Accumulator}')
             if i == "33":  # Multiply
                 value_to_multi = self.memory[int(self.storedMemory[count])]
                 self.Accumulator *= value_to_multi
+                self.InstructCounter = int(self.storedMemory[count]) + 1
                 print(f'MULTIPLY {value_to_multi} at mem loc. {int(self.storedMemory[count])} to accumulator: {int(self.Accumulator)}')
             if i == "40":  # branch
                 branch_add = int(self.storedMemory[count])
-                self.memory[int(branch_add)]
-                print(self.memory[int(branch_add)])
+                self.InstructCounter = branch_add
             if i == "41":  # branching
                 branch_add = int(self.storedMemory[count])
                 if self.Accumulator < 0:
-                    self.memory[int(branch_add)]
-
+                    self.InstructCounter = branch_add
             if i == "42":  # branchzero
-                pass
+                branch_add = int(self.storedMemory[count])
+                if self.Accumulator == 0:
+                    self.InstructCounter = branch_add
             if i == "43":  # halt
                 quit()
             count += 1
