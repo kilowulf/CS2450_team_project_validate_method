@@ -33,28 +33,29 @@ class virtualMachine:
 
     # Dump, display all whats stored in memory
     def Dump(self):
-        print("\nREGISTERS:          ")
-        print("Accumulator:          " + str(self.Accumulator))
-        print("InstrucctionCounter:  " + str(self.InstructCounter))
-        print("InstructionRegister:  " + str(self.InstructRegister))
-        print("OperationCode:        " + str(self.opCode))
-        print("Operand:              " + str(self.operand))
-        # Below is getting the format of the array displayed
-        multiple = 0
-        counter = 10
-        print("\nMEMORY:")
-        print("    00     01     02     03     04     05     06     07     08     09", end="")
-        for index in self.memory:
-            if counter % 10 == 0:
-                print("\n" + str(multiple) + "0 ", end=" ")
-                multiple += 1
-                counter = 0
-            counter += 1
-            print(f"{index:05d}", end="")  # displaying with leading zeros
-            print(" ", end=" ")
+        if self.exitCode:
+            print("\nREGISTERS:          ")
+            print("Accumulator:          " + str(self.Accumulator))
+            print("InstrucctionCounter:  " + str(self.InstructCounter))
+            print("InstructionRegister:  " + str(self.InstructRegister))
+            print("OperationCode:        " + str(self.opCode))
+            print("Operand:              " + str(self.operand))
+            # Below is getting the format of the array displayed
+            multiple = 0
+            counter = 10
+            print("\nMEMORY:")
+            print("    00     01     02     03     04     05     06     07     08     09", end="")
+            for index in self.memory:
+                if counter % 10 == 0:
+                    print("\n" + str(multiple) + "0 ", end=" ")
+                    multiple += 1
+                    counter = 0
+                counter += 1
+                print(f"{index:05d}", end="")  # displaying with leading zeros
+                print(" ", end=" ")
 
-        print(f'store memory for data {self.storedMemory}')
-        print(f'stored memory for opcodes {self.storedOpCodes}')
+            print(f'store memory for data {self.storedMemory}')
+            print(f'stored memory for opcodes {self.storedOpCodes}')
 
     # Calls the prompt to the console. This likely will be called on load.
     # this may return a string?
@@ -172,6 +173,8 @@ class virtualMachine:
                     self.storedMemory.append(inc_operand)  # memory list
                     self.storedOpCodes.append(inc_operator)  # opcode list
 
+
+
     # main method if we want it not in a seperate class
 
 
@@ -180,17 +183,17 @@ def main():
 
     vm.prompt()
     vm.execute()
-    user_input_value = -1011
-    user_input_string = str(user_input_value)
-    if user_input_string[0] == '-':
-        user_input_string = user_input_string[1:3]
+    # user_input_value = -1011
+    # user_input_string = str(user_input_value)
+    # if user_input_string[0] == '-':
+    #     user_input_string = user_input_string[1:3]
+    #
+    # vm.validate(user_input_string)
+    # # use pass_validate to check if validation passes
+    # if not vm.pass_validate:
+    #     print('Validation failed')
 
-    vm.validate(user_input_string)
-    # use pass_validate to check if validation passes
-    if not vm.pass_validate:
-        print('Validation failed')
-
-    vm.Dump()
+    # vm.Dump()
 
 
 if __name__ == "__main__":
