@@ -4,6 +4,30 @@ Carston Dastrup
 Aaron Brown
 Andrew Campbell
 """
+import math
+
+"""
+opcodes:
+                Name   Operator   Operand                   Description
+                READ    10        Destination Mem add.      Reads a word into mem location
+                WRITE   11        Source Mem add.           Write word from loc. to screen
+                LOAD    20        Source Mem add.           load word at mem loc. to Accum.
+                STORE   21        Dest. Mem add.            store word from Accum to mem loc.
+                ADD     30        Src. Mem add.             add word from mem loc. to value in
+                                                            Accum. - result stays in Accum.
+                SUBTRACT 31       Src. Mem. add.            SUBTRACT word in mem loc. from word
+                                                            in Accum. result stays in Accum.
+                DIVIDE  32        Src. Mem. add             DIVIDE word in Accum. by word in
+                                                            mem loc. result left in Accum.
+                MULTIPLY 33       Src. Mem add              MULTIPLY word in mem loc. by
+                                                            word in Accum. result left in Accum.
+                BRANCH   40       Branch Mem. Add.          Branch to mem loc.
+                BRANCHNEG 41      Branch Mem Add            Branch to Mem. loc if word in Accum.
+                                                            is Negative.
+                BRANCHZERO 42     Branch Mem. Add.          Branch to mem. loc if word in Accum.
+                                                            is zero
+                HALT       43     None                      Pause program
+"""
 
 
 class virtualMachine:
@@ -15,9 +39,10 @@ class virtualMachine:
         self.operand = 0
         self.exitCode = -99999
         self.opCode = 0
-        self.pass_validate = True
-        self.storedOpCodes = []
-        self.storedMemory = []
+        self.opCode_reg = []
+        self.storedOpCodes = []  # list of input opcodes
+        self.storedMemory = []  # list of input memory location
+        self.validate_pass = True
 
         self.InstructCounter = 0
         self.InstructRegister = 0
@@ -33,39 +58,35 @@ class virtualMachine:
 
     # Dump, display all whats stored in memory
     def Dump(self):
-        if self.exitCode:
-            print("\nREGISTERS:          ")
-            print("Accumulator:          " + str(self.Accumulator))
-            print("InstrucctionCounter:  " + str(self.InstructCounter))
-            print("InstructionRegister:  " + str(self.InstructRegister))
-            print("OperationCode:        " + str(self.opCode))
-            print("Operand:              " + str(self.operand))
-            # Below is getting the format of the array displayed
-            multiple = 0
-            counter = 10
-            print("\nMEMORY:")
-            print("    00     01     02     03     04     05     06     07     08     09", end="")
-            for index in self.memory:
-                if counter % 10 == 0:
-                    print("\n" + str(multiple) + "0 ", end=" ")
-                    multiple += 1
-                    counter = 0
-                counter += 1
-                print(f"{index:05d}", end="")  # displaying with leading zeros
-                print(" ", end=" ")
-
-            print(f'store memory for data {self.storedMemory}')
-            print(f'stored memory for opcodes {self.storedOpCodes}')
+        print("\nREGISTERS:          ")
+        print("Accumulator:          " + str(math.floor(self.Accumulator)))
+        print("InstructionCounter:  " + str(self.InstructCounter))
+        print("InstructionRegister:  " + str(self.InstructRegister))
+        print("OperationCode:        " + str(self.opCode))
+        print("Operand:              " + str(self.operand))
+        # Below is getting the format of the array displayed
+        multiple = 0
+        counter = 10
+        print("\nMEMORY:")
+        print("    00     01     02     03     04     05     06     07     08     09", end="")
+        for index in self.memory:
+            if counter % 10 == 0:
+                print("\n" + str(multiple) + "0 ", end=" ")
+                multiple += 1
+                counter = 0
+            counter += 1
+            print(f"{index:05d}", end="")  # displaying with leading zeros
+            print(" ", end=" ")
 
     # Calls the prompt to the console. This likely will be called on load.
     # this may return a string?
     def prompt(self):
         print("""
-
+            
             _   ___   _____ ___ __  __ 
-           | | | \ \ / / __|_ _|  \/  |
-           | |_| |\ V /\__ \| || |\/| |
-            \___/  \_/ |___/___|_|  |_|
+          | | | \ \ / / __|_ _|  \/  |
+          | |_| |\ V /\__ \| || |\/| |
+           \___/  \_/ |___/___|_|  |_|
                 Welcome to UVSim
         This program interprets and runs programs written in the BasicML language.
         Usage: The program is entered line by line. Once your program has been entered enter -99999 to run the application.
@@ -83,61 +104,60 @@ class virtualMachine:
         # Opcodes
         opcodes = [10, 11, 20, 21, 30, 31, 32, 33, 40, 41, 42, 43]
         # exitcode
-        exit_code = str(self.exitCode)
+        exit_code = str(-99999)
 
         # check for entry
         if user_input is None:
-            self.pass_validate = False
-            return print(f'No input detected')
+            self.validate_pass = False
+            return print(f'No input detected'), self.validate_pass
 
         # check for none integer input
-        if not isinstance(user_input, int):
-            self.pass_validate = False
-            return print(f'{user_input} please enter integers only')
+        if user_input.isalpha():
+            self.validate_pass = False
+            return print(f'{user_input} please enter integers only'), self.validate_pass
 
         # convert input to string
         input_to_string = str(user_input)
-
         if input_to_string == exit_code:
-            self.pass_validate = False
             return print(f'exit code')
-
         # check for input less than 4
         if len(input_to_string) <= 4:
             if len(input_to_string) < 4:
-                self.pass_validate = False
+                self.validate_pass = False
                 return print(f'{input_to_string} has too few digits')
-
             if input_to_string[0] == '-':
-                self.pass_validate = False
+                self.validate_pass = False
                 return print(f'{input_to_string} has too few digits')
-
         # check to make sure input is either length 5 if signed or 4 if unsigned
         if len(input_to_string) >= 5 and input_to_string != exit_code:
             if len(input_to_string) > 5:
-                self.pass_validate = False
+                self.validate_pass = False
                 return print(f'{input_to_string} has too many digits')
-
             if len(input_to_string) == 5 and input_to_string[0] != '-':
-                self.pass_validate = False
+                self.validate_pass = False
                 return print(f'{input_to_string} must be 4 digits only')
-
         # check if input is a negative value
         if input_to_string[0] == '-':
             if input_to_string != exit_code:
                 # slice opcode as substring
                 input_to_string = input_to_string[1:]
                 operator = input_to_string[0:2]
-
                 # check opcode
                 if int(operator) not in opcodes:
-                    self.pass_validate = False
+                    self.validate_pass = False
                     return print(f'{user_input} incorrect operator entered')
-
         input_operator = input_to_string[0:2]
         if int(input_operator) not in opcodes:
-            self.pass_validate = False
+            self.validate_pass = False
             return print(f'{user_input} incorrect operator entered')
+
+    def validate_memory(self, curr_mem_len):
+        if curr_mem_len > len(self.memory):
+            print(f'Memory Exceeded')
+
+    def validate_instruct_counter(self, curr_counter_value):
+        if curr_counter_value > len(self.memory):
+            print(f'Too many entries have been made')
 
     # running a while loop getting the first instruction inputs seperating them in their own lists
     def execute(self):
@@ -153,47 +173,80 @@ class virtualMachine:
                 print("0" + str(inc) + " ? ", end="")
             else:
                 print(str(inc) + " ? ", end="")
+
             incoming = input()
-            self.validate(int(incoming))
-            # if validation fails then break out of loop
-            if not self.pass_validate:
-                break
-            else:
-                inc += 1
-                # slice substring to consider negative values
-                if incoming[0] == '-':
-                    inc_operand = incoming[3:]
-                    inc_operator = incoming[1:3]
-                    # re-introduce negative sign for negative values in memory
-                    self.storedMemory.append('-' + inc_operand)  # memory list
-                    self.storedOpCodes.append(inc_operator)  # opcode list
-                else:
-                    inc_operand = incoming[2:]
-                    inc_operator = incoming[0:2]
-                    self.storedMemory.append(inc_operand)  # memory list
-                    self.storedOpCodes.append(inc_operator)  # opcode list
+            self.validate(incoming)
+            if not self.validate_pass:
+                self.validate_pass = True
+                continue
+            inc += 1
+            if incoming != "-99999":
+                self.InstructCounter += 1
+                self.opCode_reg.append(incoming)
+                self.opCode = incoming[:2]
+                self.operand = incoming[2:]
+            self.storedMemory.append(incoming[2:])  # memory list
+            self.storedOpCodes.append(incoming[:2])  # opcode list
 
+    def loadingStarting(self):
+        print("*** Program loading completed ***\n*** Program execution begins ***")
+        count = 0
+        for i in self.storedOpCodes:
+            if i == "10":  # Read
+                word = input("Enter an integer:")
+                self.memory[int(self.storedMemory[count])] = int(word)
+                self.InstructRegister = self.opCode_reg[-1]
+            if i == "11":  # Write
+                print(f'WRITE from {self.storedMemory[count]}: {self.memory[int(self.storedMemory[count])]}')
+            if i == "20":  # load
+                print("Loading from memory to accumulator: ")
+                value_to_load = self.memory[int(self.storedMemory[count])]
+                self.Accumulator = value_to_load
+            if i == "21":  # Store
+                value_to_store = self.Accumulator
+                self.memory[int(self.storedMemory[count])] = value_to_store
+                print(f'STORE {value_to_store} from accumulator to memory loc.: {self.storedMemory[count]}')
+            if i == "30":  # Add
+                value_to_add = self.memory[int(self.storedMemory[count])]
+                self.Accumulator += value_to_add
+                print(f'ADD {value_to_add} at mem loc. {int(self.storedMemory[count])} to accumulator: {self.Accumulator}')
+            if i == "31":  # Subtract
+                # results in a -0000 when accumulator is stored
+                value_to_sub = self.memory[int(self.storedMemory[count])]
+                self.Accumulator -= value_to_sub
+                print(f'SUBTRACT {value_to_sub} at mem loc. {int(self.storedMemory[count])} from accumulator: {self.Accumulator}')
+            if i == "32":  # Divide
+                value_denominator = self.memory[int(self.storedMemory[count])]
+                self.Accumulator = int(math.floor(self.Accumulator / value_denominator))
+                print(f'DIVIDE {value_denominator} at mem loc. {int(self.storedMemory[count])} from accumulator: {self.Accumulator}')
+            if i == "33":  # Multiply
+                value_to_multi = self.memory[int(self.storedMemory[count])]
+                self.Accumulator *= value_to_multi
+                print(f'MULTIPLY {value_to_multi} at mem loc. {int(self.storedMemory[count])} to accumulator: {int(self.Accumulator)}')
+            if i == "40":  # branch
+                branch_add = int(self.storedMemory[count])
+                self.memory[int(branch_add)]
+                print(self.memory[int(branch_add)])
+            if i == "41":  # branching
+                branch_add = int(self.storedMemory[count])
+                if self.Accumulator < 0:
+                    self.memory[int(branch_add)]
 
+            if i == "42":  # branchzero
+                pass
+            if i == "43":  # halt
+                quit()
+            count += 1
 
     # main method if we want it not in a seperate class
 
 
 def main():
     vm = virtualMachine()
-
     vm.prompt()
     vm.execute()
-    # user_input_value = -1011
-    # user_input_string = str(user_input_value)
-    # if user_input_string[0] == '-':
-    #     user_input_string = user_input_string[1:3]
-    #
-    # vm.validate(user_input_string)
-    # # use pass_validate to check if validation passes
-    # if not vm.pass_validate:
-    #     print('Validation failed')
-
-    # vm.Dump()
+    vm.loadingStarting()
+    vm.Dump()
 
 
 if __name__ == "__main__":
