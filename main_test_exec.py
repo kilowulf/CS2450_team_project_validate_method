@@ -5,14 +5,17 @@ Aaron Brown
 Andrew Campbell
 """
 import math
+from abc import ABC, abstractmethod
 
 """
 opcodes:
                 Name   Operator   Operand                   Description
                 READ    10        Destination Mem add.      Reads a word into mem location
                 WRITE   11        Source Mem add.           Write word from loc. to screen
+                WRITEASCII 12     Source Mem add.           write to output ascii char from src. add.
                 LOAD    20        Source Mem add.           load word at mem loc. to Accum.
                 STORE   21        Dest. Mem add.            store word from Accum to mem loc.
+                SETACCUM 22       Value                     Set value of accumulator.
                 ADD     30        Src. Mem add.             add word from mem loc. to value in
                                                             Accum. - result stays in Accum.
                 SUBTRACT 31       Src. Mem. add.            SUBTRACT word in mem loc. from word
@@ -152,11 +155,12 @@ class virtualMachine:
             return print(f'{user_input} incorrect operator entered')
 
     def validate_memory(self, curr_mem_len):
-        if curr_mem_len > len(self.memory):
+        if len(curr_mem_len) > len(self.memory):
+            self.validate_pass = False
             print(f'Memory Exceeded')
 
     def validate_instruct_counter(self, curr_counter_value):
-        if curr_counter_value > len(self.memory):
+        if len(curr_counter_value) > len(self.memory):
             print(f'Too many entries have been made')
 
     # running a while loop getting the first instruction inputs seperating them in their own lists
@@ -187,6 +191,7 @@ class virtualMachine:
                 self.operand = incoming[2:]
             self.storedMemory.append(incoming[2:])  # memory list
             self.storedOpCodes.append(incoming[:2])  # opcode list
+            self.validate_memory(self.opCode_reg)
 
     def loadingStarting(self):
         print("*** Program loading completed ***\n*** Program execution begins ***")
@@ -213,23 +218,27 @@ class virtualMachine:
                 value_to_add = self.memory[int(self.storedMemory[count])]
                 self.Accumulator += value_to_add
                 self.InstructCounter = int(self.storedMemory[count]) + 1
-                print(f'ADD {value_to_add} at mem loc. {int(self.storedMemory[count])} to accumulator: {self.Accumulator}')
+                print(
+                    f'ADD {value_to_add} at mem loc. {int(self.storedMemory[count])} to accumulator: {self.Accumulator}')
             if i == "31":  # Subtract
                 # results in a -0000 when accumulator is stored
                 value_to_sub = self.memory[int(self.storedMemory[count])]
                 self.Accumulator -= value_to_sub
                 self.InstructCounter = int(self.storedMemory[count]) + 1
-                print(f'SUBTRACT {value_to_sub} at mem loc. {int(self.storedMemory[count])} from accumulator: {self.Accumulator}')
+                print(
+                    f'SUBTRACT {value_to_sub} at mem loc. {int(self.storedMemory[count])} from accumulator: {self.Accumulator}')
             if i == "32":  # Divide
                 value_denominator = self.memory[int(self.storedMemory[count])]
                 self.Accumulator = int(math.floor(self.Accumulator / value_denominator))
                 self.InstructCounter = int(self.storedMemory[count]) + 1
-                print(f'DIVIDE {value_denominator} at mem loc. {int(self.storedMemory[count])} from accumulator: {self.Accumulator}')
+                print(
+                    f'DIVIDE {value_denominator} at mem loc. {int(self.storedMemory[count])} from accumulator: {self.Accumulator}')
             if i == "33":  # Multiply
                 value_to_multi = self.memory[int(self.storedMemory[count])]
                 self.Accumulator *= value_to_multi
                 self.InstructCounter = int(self.storedMemory[count]) + 1
-                print(f'MULTIPLY {value_to_multi} at mem loc. {int(self.storedMemory[count])} to accumulator: {int(self.Accumulator)}')
+                print(
+                    f'MULTIPLY {value_to_multi} at mem loc. {int(self.storedMemory[count])} to accumulator: {int(self.Accumulator)}')
             if i == "40":  # branch
                 branch_add = int(self.storedMemory[count])
                 self.InstructCounter = branch_add
@@ -245,7 +254,110 @@ class virtualMachine:
                 quit()
             count += 1
 
-    # main method if we want it not in a seperate class
+    # basic opcode object
+    class OpcodeObject:
+        operator: str
+        operand: str
+
+        def __init__(self, opcode_str):
+            self.opcode_str = opcode_str
+            self.operator = opcode_str[:2]
+            self.operand = opcode_str[3:]
+
+    # class inherits from virtual machine to pass to derived classes
+    class OpcodeOperation(ABC, virtualMachine):
+        @abstractmethod
+        def operation(self, opcode_obj: OpcodeObject):
+            pass
+
+    class Opcodes(virtualMachine):
+
+        def opcode_processing(self, opcode_operation: OpcodeOperation):
+            opcode_dict = {'10': 'read',
+                           '11': 'write',
+                           '12': 'writeAscii',
+                           '20': 'load',
+                           '21': 'store',
+                           '22': 'setAccum',
+                           '30': 'add',
+                           '31': 'subtract',
+                           '32': 'divide',
+                           '33': 'multiply',
+                           '40': 'branch',
+                           '41': 'branchNeg',
+                           '42': 'branchZero',
+                           '43': 'halt'}
+            for opcode in self.memory:
+                op = OpcodeObject(opcode)
+                if op.operator in opcode_dict:
+                    opcode_operation.operation(opcode_dict[op.operator])
+
+    # i/o
+    class read(OpcodeOperation):
+        def operation(self, opcode_obj: OpcodeObject):
+            operand = opcode_obj.operand
+            word = input("Enter a value: ")
+            self.memory[int(operand)] = int(word)
+            self.InstructRegister = opcode_obj.opcode_str
+            self.InstructCounter = self.memory.index(opcode_obj.opcode_str) + 1
+            return
+
+    class write(OpcodeOperation):
+        pass
+
+    class writeAscii(OpcodeOperation):
+        pass
+
+    # load ops
+    class load(OpcodeOperation):
+        pass
+
+    class store(OpcodeOperation):
+        pass
+
+    class setAccum(OpcodeOperation):
+        pass
+
+    # Arithmetic
+    class add(OpcodeOperation):
+        pass
+
+    class subtract(OpcodeOperation):
+        pass
+
+    class divide(OpcodeOperation):
+        pass
+
+    class multiply(OpcodeOperation):
+        pass
+
+    # Control
+    class branch(OpcodeOperation):
+        def operation(self, opcode_obj: OpcodeObject):
+            branch_address = opcode_obj.operand
+            value = self.memory[int(branch_address)]  # if value at address is needed
+            self.InstructRegister = opcode_obj.opcode_str
+            self.InstructCounter = int(branch_address) + 1
+            return
+
+    class branchZero(OpcodeOperation):
+        def operation(self, opcode_obj: OpcodeObject):
+            branch_address = opcode_obj.operand
+            if self.Accumulator == 0:
+                self.InstructCounter = int(branch_address)
+                self.InstructRegister = opcode_obj.opcode_str
+            return
+
+    class branchNeg(OpcodeOperation):
+        def operation(self, opcode_obj: OpcodeObject):
+            branch_address = opcode_obj.operand
+            value = self.memory[int(branch_address)]  # if value at address is needed
+            if self.Accumulator < 0:
+                self.InstructCounter = int(branch_address)
+                self.InstructRegister = opcode_obj.opcode_str
+
+    class halt(OpcodeOperation):
+        pass
 
 
 def main():
