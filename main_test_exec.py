@@ -6,6 +6,8 @@ Andrew Campbell
 """
 import math
 from abc import ABC, abstractmethod
+import ast
+
 
 """
 opcodes:
@@ -31,6 +33,8 @@ opcodes:
                                                             is zero
                 HALT       43     None                      Pause program
 """
+
+
 
 
 class virtualMachine:
@@ -195,64 +199,69 @@ class virtualMachine:
 
     def loadingStarting(self):
         print("*** Program loading completed ***\n*** Program execution begins ***")
+        for opcode_in_mem in self.memory:
+            op = virtualMachine.Opcodes()
+            opcode = OpcodeObject()
+            op.opcode_processing()
+
         count = 0
-        for i in self.storedOpCodes:
-            if i == "10":  # Read
-                word = input("Enter an integer:")
-                self.memory[int(self.storedMemory[count])] = int(word)
-                self.InstructRegister = self.opCode_reg[-1]
-                self.InstructCounter = int(self.storedMemory[count]) + 1
-            if i == "11":  # Write
-                print(f'WRITE from {self.storedMemory[count]}: {self.memory[int(self.storedMemory[count])]}')
-            if i == "20":  # load
-                print("Loading from memory to accumulator: ")
-                value_to_load = self.memory[int(self.storedMemory[count])]
-                self.Accumulator = value_to_load
-                self.InstructCounter = int(self.storedMemory[count]) + 1
-            if i == "21":  # Store
-                value_to_store = self.Accumulator
-                self.memory[int(self.storedMemory[count])] = value_to_store
-                self.InstructCounter = int(self.storedMemory[count]) + 1
-                print(f'STORE {value_to_store} from accumulator to memory loc.: {self.storedMemory[count]}')
-            if i == "30":  # Add
-                value_to_add = self.memory[int(self.storedMemory[count])]
-                self.Accumulator += value_to_add
-                self.InstructCounter = int(self.storedMemory[count]) + 1
-                print(
-                    f'ADD {value_to_add} at mem loc. {int(self.storedMemory[count])} to accumulator: {self.Accumulator}')
-            if i == "31":  # Subtract
-                # results in a -0000 when accumulator is stored
-                value_to_sub = self.memory[int(self.storedMemory[count])]
-                self.Accumulator -= value_to_sub
-                self.InstructCounter = int(self.storedMemory[count]) + 1
-                print(
-                    f'SUBTRACT {value_to_sub} at mem loc. {int(self.storedMemory[count])} from accumulator: {self.Accumulator}')
-            if i == "32":  # Divide
-                value_denominator = self.memory[int(self.storedMemory[count])]
-                self.Accumulator = int(math.floor(self.Accumulator / value_denominator))
-                self.InstructCounter = int(self.storedMemory[count]) + 1
-                print(
-                    f'DIVIDE {value_denominator} at mem loc. {int(self.storedMemory[count])} from accumulator: {self.Accumulator}')
-            if i == "33":  # Multiply
-                value_to_multi = self.memory[int(self.storedMemory[count])]
-                self.Accumulator *= value_to_multi
-                self.InstructCounter = int(self.storedMemory[count]) + 1
-                print(
-                    f'MULTIPLY {value_to_multi} at mem loc. {int(self.storedMemory[count])} to accumulator: {int(self.Accumulator)}')
-            if i == "40":  # branch
-                branch_add = int(self.storedMemory[count])
-                self.InstructCounter = branch_add
-            if i == "41":  # branching
-                branch_add = int(self.storedMemory[count])
-                if self.Accumulator < 0:
-                    self.InstructCounter = branch_add
-            if i == "42":  # branchzero
-                branch_add = int(self.storedMemory[count])
-                if self.Accumulator == 0:
-                    self.InstructCounter = branch_add
-            if i == "43":  # halt
-                quit()
-            count += 1
+        # for i in self.storedOpCodes:
+        #     if i == "10":  # Read
+        #         word = input("Enter an integer:")
+        #         self.memory[int(self.storedMemory[count])] = int(word)
+        #         self.InstructRegister = self.opCode_reg[-1]
+        #         self.InstructCounter = int(self.storedMemory[count]) + 1
+        #     if i == "11":  # Write
+        #         print(f'WRITE from {self.storedMemory[count]}: {self.memory[int(self.storedMemory[count])]}')
+        #     if i == "20":  # load
+        #         print("Loading from memory to accumulator: ")
+        #         value_to_load = self.memory[int(self.storedMemory[count])]
+        #         self.Accumulator = value_to_load
+        #         self.InstructCounter = int(self.storedMemory[count]) + 1
+        #     if i == "21":  # Store
+        #         value_to_store = self.Accumulator
+        #         self.memory[int(self.storedMemory[count])] = value_to_store
+        #         self.InstructCounter = int(self.storedMemory[count]) + 1
+        #         print(f'STORE {value_to_store} from accumulator to memory loc.: {self.storedMemory[count]}')
+        #     if i == "30":  # Add
+        #         value_to_add = self.memory[int(self.storedMemory[count])]
+        #         self.Accumulator += value_to_add
+        #         self.InstructCounter = int(self.storedMemory[count]) + 1
+        #         print(
+        #             f'ADD {value_to_add} at mem loc. {int(self.storedMemory[count])} to accumulator: {self.Accumulator}')
+        #     if i == "31":  # Subtract
+        #         # results in a -0000 when accumulator is stored
+        #         value_to_sub = self.memory[int(self.storedMemory[count])]
+        #         self.Accumulator -= value_to_sub
+        #         self.InstructCounter = int(self.storedMemory[count]) + 1
+        #         print(
+        #             f'SUBTRACT {value_to_sub} at mem loc. {int(self.storedMemory[count])} from accumulator: {self.Accumulator}')
+        #     if i == "32":  # Divide
+        #         value_denominator = self.memory[int(self.storedMemory[count])]
+        #         self.Accumulator = int(math.floor(self.Accumulator / value_denominator))
+        #         self.InstructCounter = int(self.storedMemory[count]) + 1
+        #         print(
+        #             f'DIVIDE {value_denominator} at mem loc. {int(self.storedMemory[count])} from accumulator: {self.Accumulator}')
+        #     if i == "33":  # Multiply
+        #         value_to_multi = self.memory[int(self.storedMemory[count])]
+        #         self.Accumulator *= value_to_multi
+        #         self.InstructCounter = int(self.storedMemory[count]) + 1
+        #         print(
+        #             f'MULTIPLY {value_to_multi} at mem loc. {int(self.storedMemory[count])} to accumulator: {int(self.Accumulator)}')
+        #     if i == "40":  # branch
+        #         branch_add = int(self.storedMemory[count])
+        #         self.InstructCounter = branch_add
+        #     if i == "41":  # branching
+        #         branch_add = int(self.storedMemory[count])
+        #         if self.Accumulator < 0:
+        #             self.InstructCounter = branch_add
+        #     if i == "42":  # branchzero
+        #         branch_add = int(self.storedMemory[count])
+        #         if self.Accumulator == 0:
+        #             self.InstructCounter = branch_add
+        #     if i == "43":  # halt
+        #         quit()
+        #     count += 1
 
     # basic opcode object
     class OpcodeObject:
@@ -273,24 +282,24 @@ class virtualMachine:
     class Opcodes(virtualMachine):
 
         def opcode_processing(self, opcode_operation: OpcodeOperation):
-            opcode_dict = {'10': 'read',
-                           '11': 'write',
-                           '12': 'writeAscii',
-                           '20': 'load',
-                           '21': 'store',
-                           '22': 'setAccum',
-                           '30': 'add',
-                           '31': 'subtract',
-                           '32': 'divide',
-                           '33': 'multiply',
-                           '40': 'branch',
-                           '41': 'branchNeg',
-                           '42': 'branchZero',
-                           '43': 'halt'}
-            for opcode in self.memory:
-                op = OpcodeObject(opcode)
-                if op.operator in opcode_dict:
-                    opcode_operation.operation(opcode_dict[op.operator])
+            opcode_dict = {'10': 'read()',
+                           '11': 'write()',
+                           '12': 'writeAscii()',
+                           '20': 'load()',
+                           '21': 'store()',
+                           '22': 'setAccum()',
+                           '30': 'add()',
+                           '31': 'subtract()',
+                           '32': 'divide()',
+                           '33': 'multiply()',
+                           '40': 'branch()',
+                           '41': 'branchNeg()',
+                           '42': 'branchZero()',
+                           '43': 'halt()'}
+
+            op = OpcodeObject(opcode_operation.opcode_str)
+            if op.operator in opcode_dict:
+                opcode_operation.operation(ast.literal_eval(opcode_dict[op.operator]))
 
     # i/o
     class read(OpcodeOperation):
@@ -357,7 +366,8 @@ class virtualMachine:
                 self.InstructRegister = opcode_obj.opcode_str
 
     class halt(OpcodeOperation):
-        pass
+        def operation(self, opcode_obj: OpcodeObject):
+            quit()
 
 
 def main():
