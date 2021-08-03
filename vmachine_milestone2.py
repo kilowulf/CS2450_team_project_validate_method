@@ -163,7 +163,7 @@ class virtualMachine:
 
     # running a while loop getting the first instruction inputs seperating them in their own lists
     def execute(self):
-        incoming = None
+        incoming = ''
         inc = 0
 
         while incoming != "-99999":
@@ -178,19 +178,19 @@ class virtualMachine:
                 self.validate_pass = True
                 continue
 
-            if incoming != "-99999":
-                self.InstructCounter += 1
-                self.memory[inc] = incoming
-                inc += 1
+            # if incoming != "-99999":
+            self.InstructCounter += 1
+            self.memory[inc] = incoming
+            inc += 1
             self.storedMemory.append(incoming[2:])  # memory list
             self.storedOpCodes.append(incoming[:2])  # opcode list
 
     def loadingStarting(self):
         print("*** Program loading completed ***\n*** Program execution begins ***")
         for opcode in self.memory:
-            op = Opcodes()
-            op_obj = OpcodeObject(opcode)
-            op.opcode_execute(op_obj)
+            op = OpcodeObject(opcode)
+            operator = Opcodes(op)
+            operator.opcode_execute()
 
     # main method if we want it not in a seperate class
 
@@ -202,14 +202,13 @@ class OpcodeObject:
     opcode_str: str
 
     def __init__(self, opcode_str):
-        self.opcode_str = str(opcode_str)
+        self.opcode_str = opcode_str
         self.operator = opcode_str[:2]
         self.operand = opcode_str[2:]
 
 
 # class inherits from virtual machine to pass to derived classes
 class OpcodeOperation(ABC, virtualMachine):
-
     @abstractmethod
     def operation(self, opcode_obj: OpcodeObject):
         pass
@@ -217,46 +216,54 @@ class OpcodeOperation(ABC, virtualMachine):
 
 class Opcodes(virtualMachine, OpcodeObject):
 
-    def opcode_find(self, opcode_obj: OpcodeObject):
-        opcode_dict = {'10': read(),
-                       '11': write(),
-                       '12': writeAscii(),
-                       '20': load(),
-                       '21': store(),
-                       '22': setAccum(),
-                       '30': add(),
-                       '31': subtract(),
-                       '32': divide(),
-                       '33': multiply(),
-                       '40': branch(),
-                       '41': branchNeg(),
-                       '42': branchZero(),
-                       '43': halt()}
+    def __init__(self, opcode_obj: OpcodeObject):
+        super().__init__()
+        self.opcode_obj = opcode_obj
 
-        if opcode_obj.operator in opcode_dict:
-            operation_class = opcode_dict[opcode_obj.operator]
+    def opcode_find(self):
+        opcode_dict = {'10': read,
+                       '11': write,
+                       '12': writeAscii,
+                       '20': load,
+                       '21': store,
+                       '22': setAccum,
+                       '30': add,
+                       '31': subtract,
+                       '32': divide,
+                       '33': multiply,
+                       '40': branch,
+                       '41': branchNeg,
+                       '42': branchZero,
+                       '43': halt}
+
+        if self.opcode_obj.operator in opcode_dict:
+            operation_class = opcode_dict[self.opcode_obj.operator]
             return operation_class
 
-    def opcode_execute(self, opcode_obj: OpcodeObject):
-        op_class = self.opcode_find(opcode_obj)
-        return op_class.operation(opcode_obj)
+    def opcode_execute(self):
+        operation_class = self.opcode_find()
+        return operation_class.operation(operation_class, self.opcode_obj)
 
 
 # i/o
 class read(OpcodeOperation):
+    def __init__(self):
+        super().__init__()
+
     def operation(self, opcode_obj: OpcodeObject):
         operand = opcode_obj.operand
+        op_str = int(opcode_obj.opcode_str)
         word = input("Enter a value: ")
-        self.memory[int(operand)] = int(word)
-        self.InstructRegister = opcode_obj.opcode_str
-        self.InstructCounter = self.memory.index(opcode_obj.opcode_str) + 1
+        self.memory[int(operand)] = word
+        self.InstructRegister = op_str
+        # self.InstructCounter = self.memory.index(op_str) + 1
         return
 
 
 class write(OpcodeOperation):
     def operation(self, opcode_obj: OpcodeObject):
         operand = opcode_obj.operand
-        print(f'WRITE from {self.memory[operand]}: {self.memory[int(self.memory[operand])]}')
+        print(f'WRITE from {self.memory[int(operand)]}: {self.memory[int(self.memory[int(operand)])]}')
 
 
 class writeAscii(OpcodeOperation):
@@ -360,6 +367,9 @@ def main():
     vm.execute()
     vm.loadingStarting()
     vm.Dump()
+    op = OpcodeObject('1000')
+    operator = Opcodes(op)
+    operator.opcode_execute()
 
 
 if __name__ == "__main__":
